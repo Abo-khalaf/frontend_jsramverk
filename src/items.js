@@ -45,6 +45,7 @@ function Items() {
     });
   }
 
+
   function componentDidMount2() {
     axios.delete(`${url}/delete/${id}`).then((res) => {
       //   setItems(res.data);
