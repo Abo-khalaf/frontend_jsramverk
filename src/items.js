@@ -20,7 +20,7 @@ function Items() {
   if (local.includes(window.location.hostname)) {
     url = 'http://localhost:1337'
   } else {
-    url = 'https://editor-backend-muab19.azurewebsites.net/';
+    url = 'https://editor--backend--muab19.azurewebsites.net';
   }
 
   
