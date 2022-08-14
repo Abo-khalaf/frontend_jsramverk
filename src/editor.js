@@ -26,8 +26,6 @@ function Editor({ parentCallBack, data }) {
       onKeyUp={(editor) => {
         parentCallBack(editor);
       }}
-
-
     />
   );
 }
