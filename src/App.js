@@ -1,13 +1,12 @@
-import React from 'react';
+import React from "react";
 
-import './index.css';
-import Items from './items';
-
+import "./index.css";
+import Items from "./items";
 
 function App() {
   return (
     <div className="App">
-    < Items />
+      <Items />
     </div>
   );
 }

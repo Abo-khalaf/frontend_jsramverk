@@ -1,20 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 // import { CKEditor } from "@ckeditor/ckeditor5-react";
 // import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { io } from "socket.io-client";
 import Editor from "./editor";
 import "./App.css";
 import axios from "axios";
-
-export default function Items () {
+const socket = io.connect("http://localhost:1337");
+export default function Items() {
   const [editor, setEditor] = useState("");
   const [data, setData] = useState("");
   const [items, setItems] = useState([]);
   const [title, setTitle] = useState("");
   const [id, setId] = useState("");
-  
+
   var url;
   var local = ["localhost", "127.0.0.1"];
-
   if (local.includes(window.location.hostname)) {
     url = "http://localhost:1337";
   } else {
@@ -22,15 +22,18 @@ export default function Items () {
   }
 
   function callbackEditor(editor1) {
-    console.log(typeof(editor1),"hej hej");
     return setEditor(editor1);
   }
 
   function postData() {
-    // setCount(1);
     try {
       setData(editor.getData());
       axios.post(url + "/add", {
+        name: title,
+        bor: editor.getData(),
+      });
+
+      socket.emit("send_message", {
         name: title,
         bor: editor.getData(),
       });
@@ -39,6 +42,13 @@ export default function Items () {
     }
   }
 
+  useEffect(() => {
+    socket.on("receive_message", (data) => {
+      setTitle(data.name);
+      setData(data.bor);
+    });
+  }, [title]);
+
   const handleChange = (event) => {
     try {
       setTitle(event.target.value);
@@ -46,7 +56,6 @@ export default function Items () {
       console.log(error);
     }
   };
-
   function componentDidMount1() {
     try {
       axios.get(url + "/items").then((res) => {
@@ -77,9 +86,15 @@ export default function Items () {
           name: title,
           bor: editor.getData(),
         })
+
         .then((res) => {
           console.log(res.data);
         });
+
+      socket.emit("send_message", {
+        name: title,
+        bor: editor.getData(),
+      });
       alert("full the inputs to update the item ...");
       componentDidMount1();
     } catch (error) {
@@ -100,27 +115,34 @@ export default function Items () {
   return (
     <div className="App">
       <h2>My Editor</h2>
-      <div>
+
+      <div className="inputs">
         title:{" "}
         <input type="text" name="title" value={title} onChange={handleChange} />
+        <div className="editor" style={{ color: "green" }}>
+          <Editor parentCallBack={callbackEditor} data={data} />
+        </div>
       </div>
-      <div className="Editor">
-        <Editor parentCallBack={callbackEditor} data={data} />
+      <div className="buttons">
+        <button data-testid="save-button" className="Button" onClick={postData}>
+          save
+        </button>
+        <button className="Button" onClick={patchTheMongoData}>
+          Edit
+        </button>
+
+        <button className="Button" onClick={componentDidMount2}>
+          Delete
+        </button>
+
+        <button
+          data-testid="show-button"
+          className="Button"
+          onClick={componentDidMount1}
+        >
+          Show
+        </button>
       </div>
-      <button data-testid="save-button" className="Button" onClick={postData}>
-        save
-      </button>
-      <button className="Button" onClick={patchTheMongoData}>
-        Edit
-      </button>
-
-      <button className="Button" onClick={componentDidMount2}>
-        Delete
-      </button>
-
-      <button data-testid="show-button" className="Button" onClick={componentDidMount1}>
-        Show
-      </button>
       <div>
         <ul>
           {items.map((item) => (
