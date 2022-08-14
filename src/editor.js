@@ -7,7 +7,6 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 // } else {
 //   url = "https://editor--backend--muab19.azurewebsites.net";
 // }
-
 function Editor({ parentCallBack, data }) {
   return (
     <CKEditor
