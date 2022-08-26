@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-// import { CKEditor } from "@ckeditor/ckeditor5-react";
-// import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
 import { io } from "socket.io-client";
 import Editor from "./editor";
+import Login from "./auth/login";
 import "./App.css";
 import axios from "axios";
 const socket = io.connect("http://localhost:1337");
@@ -13,6 +13,10 @@ export default function Items() {
   const [title, setTitle] = useState("");
   const [id, setId] = useState("");
 
+  const [token, setToken] = useState("");
+  const [userId, setUserId] = useState("id");
+
+  const [signInUp, setSignInUp] = useState(false);
   var url;
   var local = ["localhost", "127.0.0.1"];
   if (local.includes(window.location.hostname)) {
@@ -31,6 +35,8 @@ export default function Items() {
       axios.post(url + "/add", {
         name: title,
         bor: editor.getData(),
+        userId: userId,
+
       });
 
       socket.emit("send_message", {
@@ -112,51 +118,73 @@ export default function Items() {
     }
   }
 
-  return (
-    <div className="App">
-      <h2>My Editor</h2>
+  // const collbackuseID = (userID) => {
+  //   Login.sendUserID()
+  // }
 
-      <div className="inputs">
-        title:{" "}
-        <input type="text" name="title" value={title} onChange={handleChange} />
-        <div className="editor" style={{ color: "green" }}>
-          <Editor parentCallBack={callbackEditor} data={data} />
+  const signInCallBack = (uId) => {
+    setSignInUp(true);
+    setUserId(uId);
+    console.log("asjkdflkjsadflkjs", uId);
+  };
+  if (signInUp === true) {
+    return (
+      <div className="App">
+        <h2>My Editor</h2>
+
+        <div className="inputs">
+          title:{" "}
+          <input
+            type="text"
+            name="title"
+            value={title}
+            onChange={handleChange}
+          />
+          <div className="editor" style={{ color: "green" }}>
+            <Editor parentCallBack={callbackEditor} data={data} />
+          </div>
+        </div>
+        <div className="buttons">
+          <button
+            data-testid="save-button"
+            className="Button"
+            onClick={postData}
+          >
+            save
+          </button>
+          <button className="Button" onClick={patchTheMongoData}>
+            Edit
+          </button>
+
+          <button className="Button" onClick={componentDidMount2}>
+            Delete
+          </button>
+
+          <button
+            data-testid="show-button"
+            className="Button"
+            onClick={componentDidMount1}
+          >
+            Show
+          </button>
+        </div>
+        <div>
+          <ul>
+            {items.map((item) => (
+              <li
+                key={item._id}
+                onClick={() => sendItems(item._id, item.name, item.bor)}
+              >
+                {item.name}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-      <div className="buttons">
-        <button data-testid="save-button" className="Button" onClick={postData}>
-          save
-        </button>
-        <button className="Button" onClick={patchTheMongoData}>
-          Edit
-        </button>
-
-        <button className="Button" onClick={componentDidMount2}>
-          Delete
-        </button>
-
-        <button
-          data-testid="show-button"
-          className="Button"
-          onClick={componentDidMount1}
-        >
-          Show
-        </button>
-      </div>
-      <div>
-        <ul>
-          {items.map((item) => (
-            <li
-              key={item._id}
-              onClick={() => sendItems(item._id, item.name, item.bor)}
-            >
-              {item.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
+    );
+  } else {
+    return <Login callBack={signInCallBack} />;
+  }
 }
 
 //  Items;
