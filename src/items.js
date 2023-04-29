@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-
+import parse from 'html-react-parser'
 import { io } from "socket.io-client";
 import Editor from "./editor";
 import Login from "./auth/login";
@@ -62,15 +62,26 @@ export default function Items() {
       console.log(error);
     }
   };
+
+
   function componentDidMount1() {
-    try {
-      axios.get(url + "/items").then((res) => {
-        setItems(res.data);
-        console.log(res.data);
-      });
-    } catch (error) {
-      console.log(error);
-    }
+
+    fetch(url + '/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `{   document {
+          name
+          bor
+          userId
+        }}` })
+    })
+      .then(r => r.json())
+      .then(res => setItems(res.data.document));
+
   }
 
   function componentDidMount2() {
@@ -176,6 +187,8 @@ export default function Items() {
                 onClick={() => sendItems(item._id, item.name, item.bor)}
               >
                 {item.name}
+                {parse(item.bor)}
+
               </li>
             ))}
           </ul>
