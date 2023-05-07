@@ -66,31 +66,29 @@ export default function Items() {
 
   function componentDidMount1() {
 
-    fetch(url + '/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `{   document {
+    axios.post(url + '/graphql', {
+      query: `{   document {
           name
           bor
           userId
+          _id
         }}` })
-    })
-      .then(r => r.json())
-      .then(res => setItems(res.data.document));
+
+      .then(res => setItems(res.data.data.document));
 
   }
 
+
+
+
   function componentDidMount2() {
+    console.log("hej hje", id);
     try {
       axios.delete(`${url}/delete/${id}`).then((res) => {
-        console.log(res.data);
+        console.log(res.data.document);
       });
       alert("This Item was deleted  ...");
-      componentDidMount1();
+      componentDidMount1()
     } catch (error) {
       console.log(error);
     }
@@ -139,6 +137,7 @@ export default function Items() {
     console.log("asjkdflkjsadflkjs", uId);
   };
   if (signInUp === true) {
+    console.log("items", items);
     return (
       <div className="App">
         <h2>My Editor</h2>
@@ -187,7 +186,7 @@ export default function Items() {
                 onClick={() => sendItems(item._id, item.name, item.bor)}
               >
                 {item.name}
-                {parse(item.bor)}
+                {item._id}
 
               </li>
             ))}
