@@ -1,12 +1,13 @@
 import React from "react";
 
 import "./index.css";
-import Items from "./items";
+// import Items from "./items";
+import Download from "./Download";
 
 function App() {
   return (
     <div className="App">
-      <Items />
+      <Download />
     </div>
   );
 }

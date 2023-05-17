@@ -1,24 +1,28 @@
 import React, { useState, useEffect, useCallback } from "react";
-import parse from 'html-react-parser'
 import { io } from "socket.io-client";
 import Editor from "./editor";
 import Login from "./auth/login";
 import "./App.css";
 import axios from "axios";
+import MonacoEditor from 'react-monaco-editor'
 const socket = io.connect("http://localhost:1337");
-export default function Items() {
+
+
+
+
+export default function Items({ getSpecificId }) {
+
   const [editor, setEditor] = useState("");
   const [data, setData] = useState("");
   const [items, setItems] = useState([]);
   const [title, setTitle] = useState("");
   const [id, setId] = useState("");
-
-  const [token, setToken] = useState("");
   const [userId, setUserId] = useState("id");
 
-  const [signInUp, setSignInUp] = useState(false);
   var url;
   var local = ["localhost", "127.0.0.1"];
+
+
   if (local.includes(window.location.hostname)) {
     url = "http://localhost:1337";
   } else {
@@ -82,7 +86,8 @@ export default function Items() {
 
 
   function componentDidMount2() {
-    console.log("hej hje", id);
+
+
     try {
       axios.delete(`${url}/delete/${id}`).then((res) => {
         console.log(res.data.document);
@@ -120,6 +125,7 @@ export default function Items() {
   function sendItems(id, title, text) {
     try {
       setId(id);
+      getSpecificId(items.filter((item) => item._id === id)[0])
       setTitle(title);
       setData(text);
     } catch (error) {
@@ -127,76 +133,67 @@ export default function Items() {
     }
   }
 
-  // const collbackuseID = (userID) => {
-  //   Login.sendUserID()
-  // }
+  return (
+    <div className="App">
+      <h2>My Editor</h2>
 
-  const signInCallBack = (uId) => {
-    setSignInUp(true);
-    setUserId(uId);
-    console.log("asjkdflkjsadflkjs", uId);
-  };
-  if (signInUp === true) {
-    console.log("items", items);
-    return (
-      <div className="App">
-        <h2>My Editor</h2>
+      <div className="inputs">
+        title:{" "}
+        <input
+          type="text"
+          name="title"
+          value={title}
+          onChange={handleChange}
+        />
+        <div className="editor" style={{ color: "green" }}>
+          <Editor parentCallBack={callbackEditor} data={data}  />
 
-        <div className="inputs">
-          title:{" "}
-          <input
-            type="text"
-            name="title"
-            value={title}
-            onChange={handleChange}
-          />
-          <div className="editor" style={{ color: "green" }}>
-            <Editor parentCallBack={callbackEditor} data={data} />
-          </div>
-        </div>
-        <div className="buttons">
-          <button
-            data-testid="save-button"
-            className="Button"
-            onClick={postData}
-          >
-            save
-          </button>
-          <button className="Button" onClick={patchTheMongoData}>
-            Edit
-          </button>
-
-          <button className="Button" onClick={componentDidMount2}>
-            Delete
-          </button>
-
-          <button
-            data-testid="show-button"
-            className="Button"
-            onClick={componentDidMount1}
-          >
-            Show
-          </button>
-        </div>
-        <div>
-          <ul>
-            {items.map((item) => (
-              <li
-                key={item._id}
-                onClick={() => sendItems(item._id, item.name, item.bor)}
-              >
-                {item.name}
-                {item._id}
-
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
-    );
-  } else {
-    return <Login callBack={signInCallBack} />;
-  }
+      <div className="buttons">
+        <button
+          data-testid="save-button"
+          className="Button"
+          onClick={postData}
+        >
+          save
+        </button>
+        <button className="Button" onClick={patchTheMongoData}>
+          Edit
+        </button>
+
+        <button className="Button" onClick={componentDidMount2}>
+          Delete
+        </button>
+
+        <button
+          data-testid="show-button"
+          className="Button"
+          onClick={componentDidMount1}
+        >
+          Show
+        </button>
+      </div>
+      <div>
+        <ul>
+          {items.map((item) => (
+            <li
+              key={item._id}
+              onClick={() => sendItems(item._id, item.name, item.bor)}
+            >
+              {item.name}
+            </li>
+
+
+          ))}
+        </ul>
+      </div>
+
+
+
+    </div>
+  );
+
 }
 
-//  Items;
+
